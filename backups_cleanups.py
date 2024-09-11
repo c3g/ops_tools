@@ -41,7 +41,7 @@ def cleanup_backup(s3, bucket_name, dry_run=False):
     :param dry_run:
     :return:
     """
-    regex = re.compile(r'.*_(\d{4}-\d{2}-\d{2})\.(sql\.dump|tar)')
+    regex = re.compile(r'.*[_.](\d{4}-\d{2}-\d{2})\.(sql\.dump|tar)')
 
     now = datetime.datetime.now()
     ten_days = now - datetime.timedelta(days=10)
@@ -88,4 +88,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(rclone_config_file='/home/poq/.config/rclone/rclone.conf', bucket_name='DB_backups', dry_run=dry_run)
-
