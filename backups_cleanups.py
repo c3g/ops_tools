@@ -79,12 +79,12 @@ def cleanup_backup(s3, bucket_name, dry_run=False):
         s3.meta.client.delete_objects(Bucket=bucket_name, Delete={'Objects': to_delete})
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Cleanup c3g production DB backups, note that by default, it is a dry run!')
+    parser = argparse.ArgumentParser(description='Cleanup c3g production DB backups, note that it is a dry run by default!')
     parser.add_argument('--id', help='S3 id')
     parser.add_argument('--bucket', help='bucket name', default="DB_backups")
     parser.add_argument('--secret', help='S3 secret')
-    parser.add_argument('--rclone', help='rclone` config file path')
-    parser.add_argument('--config', help='rclone` config section', default="c3g-prod")
+    parser.add_argument('--rclone', help='rclone config file path can be provided instead of the id and secret themselves')
+    parser.add_argument('--config', help='rclone config section', default="c3g-prod")
     parser.add_argument('--endpoint', help='s3 enpoint url')
     parser.add_argument('-r', '--not-dry-run', action='store_true', help='Run the cleanup')
 
