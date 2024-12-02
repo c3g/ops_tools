@@ -6,8 +6,19 @@ import re
 
 import boto3
 
+def get_config(rclone_config_file, c_section):
 
-def main(rclone_config_file, bucket_name, dry_run=False):
+    config = configparser.ConfigParser()
+    config.read(rclone_config_file)
+    section = config[c_section]
+    access_key_id = section['access_key_id']
+    secret_access_key = section['secret_access_key']
+    endpoint = section['endpoint']
+    return (access_key_id,
+            secret_access_key, 
+            endpoint)
+
+def main(access_key_id, secret_access_key, endpoint, bucket_name, dry_run=False):
     """
     Main entry point
     :param rclone_config_file:
@@ -15,14 +26,6 @@ def main(rclone_config_file, bucket_name, dry_run=False):
     :param dry_run:
     :return:
     """
-    config = configparser.ConfigParser()
-    config.read(rclone_config_file)
-
-    section = config['c3g-prod']
-
-    access_key_id = section['access_key_id']
-    secret_access_key = section['secret_access_key']
-    endpoint = section['endpoint']
 
     session = boto3.Session(
     aws_access_key_id=access_key_id,
@@ -76,15 +79,33 @@ def cleanup_backup(s3, bucket_name, dry_run=False):
         s3.meta.client.delete_objects(Bucket=bucket_name, Delete={'Objects': to_delete})
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Cleanup the DB, not that by default, it is a dry run!')
-    parser.add_argument('-r', '--not-dry-run', action='store_true',
-                        help='Run the cleanup')
+    parser = argparse.ArgumentParser(description='Cleanup c3g production DB backups, note that by default, it is a dry run!')
+    parser.add_argument('--id', help='S3 id')
+    parser.add_argument('--bucket', help='bucket name', default="DB_backups")
+    parser.add_argument('--secret', help='S3 secret')
+    parser.add_argument('--rclone', help='rclone` config file path')
+    parser.add_argument('--config', help='rclone` config section', default="c3g-prod")
+    parser.add_argument('--endpoint', help='s3 enpoint url')
+    parser.add_argument('-r', '--not-dry-run', action='store_true', help='Run the cleanup')
 
     args = parser.parse_args()
     dry_run = True
     if args.not_dry_run:
         dry_run = False
 
-    args = parser.parse_args()
+    rclone = args.rclone
+    if rclone:
+        c_section = args.config
+        access_key_id, secret_access_key, endpoint = get_config(rclone, c_section)
 
-    main(rclone_config_file='/home/poq/.config/rclone/rclone.conf', bucket_name='DB_backups', dry_run=dry_run)
+    if args.endpoint:
+        endpoint = args.endpoint
+    if args.id:
+        access_key_id = args.id
+    if args.secret:
+        secret_access_key = args.secret
+    if args.bucket:
+        bucket_name = args.bucket
+
+
+    main(access_key_id, secret_access_key, endpoint, bucket_name, dry_run=dry_run)
