@@ -70,8 +70,8 @@ def cleanup_backup(s3, bucket_name, dry_run=False):
         else:
             to_delete.append({"Key": obj.key})
 
-    print(f"To keep\n{"\n".join(keep)}")
-    print("\nTo delete {}".format("\n".join([ list(e.values())[0] for e in to_delete])))
+    print(f"To keep\n{'\n'.join(keep)}")
+    print("\nTo delete {}".format('\n'.join([ list(e.values())[0] for e in to_delete])))
     if dry_run is True:
         print("Dry run, not deleting")
     else:
